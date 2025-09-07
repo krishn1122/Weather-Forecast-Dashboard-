@@ -1,0 +1,105 @@
+# Weather Forecast Dashboard
+# Professional PowerBI dashboard with real-time weather data integration
+
+# Ignore system and temporary files
+.DS_Store
+Thumbs.db
+*.tmp
+*.temp
+*.log
+
+# PowerBI specific files
+*.pbix.tmp
+*.pbix~
+*_Backup_*
+
+# API keys and sensitive configuration
+config.json
+.env
+*.env
+api_keys.txt
+secrets.json
+
+# Personal settings and cache
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+
+# Build and deployment artifacts
+dist/
+build/
+output/
+*.zip
+
+# Documentation build files
+docs/_build/
+docs/.doctrees/
+
+# OS specific files
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Temporary PowerBI files
+~$*.pbix
+*.pbix.tmp
+
+# Data files (if storing locally)
+data/raw/
+data/cache/
+*.csv
+*.xlsx
+*.json
+
+# Backup files
+backup/
+*.bak
+*.backup
+
+# Log files
+logs/
+*.log
+
+# Node modules (if using any JS tools)
+node_modules/
+npm-debug.log
+
+# Python cache (if using Python for data processing)
+__pycache__/
+*.pyc
+*.pyo
+
+# R files (if using R for analysis)
+.RData
+.Rhistory
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# JetBrains IDEs
+.idea/
+*.iml
+
+# Windows shortcuts
+*.lnk
+
+# macOS
+.AppleDouble
+.LSOverride
+Icon?
+
+# Linux
+*~
+
+# Temporary download files
+*.part
+*.crdownload
+
+# PowerBI template backup files
+*.pbit~
+*.pbit.tmp

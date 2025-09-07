@@ -1,0 +1,41 @@
+MIT License
+
+Copyright (c) 2024 Weather Forecast Dashboard
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+## Third-Party Licenses
+
+This project uses weather data from various APIs which may have their own terms of service:
+
+### Weather API Providers
+- **OpenWeatherMap**: https://openweathermap.org/terms
+- **WeatherAPI.com**: https://www.weatherapi.com/terms.aspx
+- **AccuWeather**: https://www.accuweather.com/en/legal
+
+### Microsoft PowerBI
+This project is built using Microsoft PowerBI, which is subject to Microsoft's terms of service:
+- **PowerBI Terms**: https://powerbi.microsoft.com/en-us/terms-of-service/
+
+### Icons and Assets
+Weather icons and background images used in this project may be subject to their respective licenses. Please verify the licensing of any assets before commercial use.
+
+---
+
+*For questions about licensing, please contact the project maintainer.*

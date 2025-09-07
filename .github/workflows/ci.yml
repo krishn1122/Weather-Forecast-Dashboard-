@@ -1,0 +1,235 @@
+name: Weather Forecast Dashboard CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run weekly to check for issues
+    - cron: '0 0 * * 0'
+
+jobs:
+  validate:
+    name: Validate PowerBI Dashboard
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Check file structure
+      run: |
+        echo "Validating project structure..."
+        if (Test-Path "src/Weather_forecast_Dashboard.pbix") {
+          echo "✅ Main PowerBI file found"
+        } else {
+          echo "❌ Main PowerBI file missing"
+          exit 1
+        }
+        
+        if (Test-Path "assets/icons") {
+          echo "✅ Icons directory found"
+        } else {
+          echo "❌ Icons directory missing"
+          exit 1
+        }
+        
+        if (Test-Path "assets/backgrounds") {
+          echo "✅ Backgrounds directory found"
+        } else {
+          echo "❌ Backgrounds directory missing"
+          exit 1
+        }
+        
+        if (Test-Path "docs") {
+          echo "✅ Documentation directory found"
+        } else {
+          echo "❌ Documentation directory missing"
+          exit 1
+        }
+      shell: powershell
+
+    - name: Validate documentation
+      run: |
+        echo "Checking documentation files..."
+        $requiredDocs = @(
+          "README.md",
+          "docs/API_SETUP.md", 
+          "docs/TECHNICAL.md",
+          "docs/SCREENSHOTS.md",
+          "CONTRIBUTING.md",
+          "LICENSE",
+          "CHANGELOG.md"
+        )
+        
+        foreach ($doc in $requiredDocs) {
+          if (Test-Path $doc) {
+            echo "✅ $doc exists"
+          } else {
+            echo "❌ $doc missing"
+            exit 1
+          }
+        }
+      shell: powershell
+
+    - name: Check assets
+      run: |
+        echo "Validating asset files..."
+        
+        # Check for required icons
+        $iconCount = (Get-ChildItem "assets/icons" -Filter "*.png" | Measure-Object).Count
+        echo "Found $iconCount icon files"
+        
+        if ($iconCount -lt 5) {
+          echo "❌ Insufficient icon files (minimum 5 required)"
+          exit 1
+        }
+        
+        # Check for background images
+        $backgroundCount = (Get-ChildItem "assets/backgrounds" -Filter "*.png" | Measure-Object).Count
+        echo "Found $backgroundCount background files"
+        
+        if ($backgroundCount -lt 3) {
+          echo "❌ Insufficient background files (minimum 3 required)"
+          exit 1
+        }
+        
+        # Check for dashboard preview
+        if (Test-Path "assets/screenshots/Dashboard.png") {
+          echo "✅ Dashboard preview image found"
+        } else {
+          echo "❌ Dashboard preview image missing"
+          exit 1
+        }
+      shell: powershell
+
+    - name: Validate PowerBI file
+      run: |
+        echo "Checking PowerBI file properties..."
+        $pbixFile = "src/Weather_forecast_Dashboard.pbix"
+        
+        if (Test-Path $pbixFile) {
+          $fileSize = (Get-Item $pbixFile).Length
+          $fileSizeMB = [math]::Round($fileSize / 1MB, 2)
+          echo "PowerBI file size: $fileSizeMB MB"
+          
+          if ($fileSizeMB -gt 100) {
+            echo "⚠️ Warning: PowerBI file is quite large ($fileSizeMB MB)"
+          }
+          
+          if ($fileSizeMB -lt 0.1) {
+            echo "❌ Error: PowerBI file seems too small, might be corrupted"
+            exit 1
+          }
+        }
+      shell: powershell
+
+  security-scan:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Check for sensitive information
+      run: |
+        echo "Scanning for sensitive information..."
+        
+        # Check for potential API keys or secrets
+        if grep -r -E "(api[_-]?key|secret|password|token)" --include="*.md" --include="*.json" --include="*.txt" .; then
+          echo "⚠️ Warning: Potential sensitive information found in files"
+          echo "Please review the above matches to ensure no secrets are exposed"
+        else
+          echo "✅ No obvious sensitive information found in text files"
+        fi
+        
+        # Check .gitignore coverage
+        if [ -f ".gitignore" ]; then
+          echo "✅ .gitignore file exists"
+          if grep -q "config.json\|.env\|api_keys" .gitignore; then
+            echo "✅ .gitignore covers common sensitive files"
+          else
+            echo "⚠️ Warning: .gitignore might not cover all sensitive files"
+          fi
+        else
+          echo "❌ No .gitignore file found"
+          exit 1
+        fi
+
+  documentation-check:
+    name: Documentation Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Check README completeness
+      run: |
+        echo "Checking README.md quality..."
+        
+        required_sections=(
+          "Installation"
+          "Usage" 
+          "Features"
+          "Contributing"
+          "License"
+        )
+        
+        missing_sections=""
+        for section in "${required_sections[@]}"; do
+          if ! grep -q -i "$section" README.md; then
+            missing_sections="$missing_sections $section"
+          fi
+        done
+        
+        if [ -n "$missing_sections" ]; then
+          echo "⚠️ Warning: README.md might be missing sections:$missing_sections"
+        else
+          echo "✅ README.md contains all recommended sections"
+        fi
+        
+        # Check for broken links (basic check)
+        if grep -E '\[.*\]\(.*\)' README.md | grep -v '^#' | head -5; then
+          echo "ℹ️ Found markdown links in README - consider validating them"
+        fi
+
+    - name: Validate markdown files
+      run: |
+        echo "Checking markdown file structure..."
+        
+        md_files=$(find . -name "*.md" -type f)
+        for file in $md_files; do
+          echo "Checking $file..."
+          
+          # Basic structure check
+          if [ -s "$file" ]; then
+            echo "✅ $file is not empty"
+          else
+            echo "❌ $file is empty"
+          fi
+        done
+
+  notify:
+    name: Notification
+    needs: [validate, security-scan, documentation-check]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Report results
+      run: |
+        echo "=== CI/CD Pipeline Results ==="
+        echo "Validation: ${{ needs.validate.result }}"
+        echo "Security Scan: ${{ needs.security-scan.result }}"
+        echo "Documentation Check: ${{ needs.documentation-check.result }}"
+        
+        if [ "${{ needs.validate.result }}" = "success" ] && 
+           [ "${{ needs.security-scan.result }}" = "success" ] && 
+           [ "${{ needs.documentation-check.result }}" = "success" ]; then
+          echo "🎉 All checks passed successfully!"
+        else
+          echo "⚠️ Some checks failed or had warnings. Please review the results above."
+        fi
